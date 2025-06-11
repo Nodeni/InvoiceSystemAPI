@@ -1,0 +1,15 @@
+﻿# Ignore user secrets and sensitive config
+appsettings.json
+*.user
+*.suo
+
+# Ignore build results
+bin/
+obj/
+
+# Ignore migrations if not needed
+Migrations/
+
+# Ignore Visual Studio folders
+.vscode/
+.vs/
