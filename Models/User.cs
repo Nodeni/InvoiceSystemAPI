@@ -19,8 +19,8 @@ namespace InvoiceSystemAPI.Models
         public string? Bankgiro { get; set; }
         public string? IBAN { get; set; }
         public string? SwishNumber { get; set; }
-
         public DateTime UserCreatedDate { get; set; } = DateTime.UtcNow;
+        public bool IsActive { get; set; } = true;
 
     }
 }
