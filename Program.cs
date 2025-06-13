@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using InvoiceSystemAPI.Data;
+using InvoiceSystemAPI.IRepositories;
+using InvoiceSystemAPI.Repository;
 
 namespace InvoiceSystemAPI
 {
@@ -13,6 +15,7 @@ namespace InvoiceSystemAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add services to the container.
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
