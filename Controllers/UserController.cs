@@ -3,6 +3,7 @@ using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.Models;
 using InvoiceSystemAPI.IRepositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 
 namespace InvoiceSystemAPI.Controllers
 {
@@ -49,7 +50,17 @@ namespace InvoiceSystemAPI.Controllers
             };
             await _userRepository.CreateUserAsync(user);
             return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, user);
+        }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
         }
     }
 }
