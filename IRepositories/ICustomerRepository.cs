@@ -1,0 +1,11 @@
+﻿using InvoiceSystemAPI.Models;
+
+namespace InvoiceSystemAPI.IRepositories
+{
+    public interface ICustomerRepository
+    {
+        Task<List<Customer>> GetAllCustomersAsync();
+        Task<Customer?> GetCustomerByIdAsync(int id);
+        Task<Customer> CreateCustomerAsync(Customer customer);
+    }
+}
