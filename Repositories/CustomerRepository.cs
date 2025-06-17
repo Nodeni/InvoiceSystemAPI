@@ -15,16 +15,19 @@ namespace InvoiceSystemAPI.Repositories
             _context = context;
         }
 
+        // Fetch all customers from the database
         public async Task<List<Customer>> GetAllCustomersAsync()
         {
             return await _context.Customers.ToListAsync();
         }
 
+        // Fetch a specific customer by ID
         public async Task<Customer?> GetCustomerByIdAsync(int id)
         {
             return await _context.Customers.FindAsync(id);
         }
 
+        // Save a new customer to the database
         public async Task<Customer> CreateCustomerAsync(Customer customer)
         {
             await _context.Customers.AddAsync(customer);
@@ -32,6 +35,7 @@ namespace InvoiceSystemAPI.Repositories
             return customer;
         }
 
+        // Get all customers connected to a specific user
         public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
         {
             return await _context.Customers
@@ -39,6 +43,7 @@ namespace InvoiceSystemAPI.Repositories
                 .ToListAsync();
         }
 
+        // Update existing customer information
         public async Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto)
         {
             var customer = await _context.Customers.FindAsync(id);
@@ -62,6 +67,7 @@ namespace InvoiceSystemAPI.Repositories
             return customer;
         }
 
+        // Delete a customer by ID
         public async Task<bool> DeleteCustomerAsync(int id)
         {
             var customer = await _context.Customers.FindAsync(id);

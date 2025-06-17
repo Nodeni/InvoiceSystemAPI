@@ -20,6 +20,7 @@ namespace InvoiceSystemAPI.Controllers
             _userRepository = userRepository;
         }
 
+        // Get all users from the database
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -27,6 +28,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(users);
         }
 
+        // Create a new user
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserCreateDTO dto)
         {
@@ -52,6 +54,7 @@ namespace InvoiceSystemAPI.Controllers
             return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, user);
         }
 
+        // Get a specific user by their ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {

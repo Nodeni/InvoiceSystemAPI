@@ -20,6 +20,7 @@ namespace InvoiceSystemAPI.Controllers
             _customerRepository = customerRepository;
         }
 
+        // Get all customers from the database
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
@@ -27,6 +28,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(customers);
         }
 
+        // Create a new customer (must have valid userId to do this)
         [HttpPost]
         public async Task<IActionResult> CreateCustomer(CustomerCreateDTO dto)
         {
@@ -53,6 +55,7 @@ namespace InvoiceSystemAPI.Controllers
             return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
         }
 
+        // Get a specific customer by their ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomerById(int id)
         {
@@ -63,6 +66,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(customer);
         }
 
+        // Get all customers that belong to a specific user
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetCustomersByUserId(int userId)
         {
@@ -74,6 +78,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(customers);
         }
 
+        // Update an existing customers information
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCustomer(int id, CustomerUpdateDTO dto)
         {
@@ -85,6 +90,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(updatedCustomer);
         }
 
+        // Delete a customer from the database
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
