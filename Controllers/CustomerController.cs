@@ -62,5 +62,16 @@ namespace InvoiceSystemAPI.Controllers
 
             return Ok(customer);
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetCustomersByUserId(int userId)
+        {
+            var customers = await _customerRepository.GetCustomersByUserIdAsync(userId);
+            
+            if (customers == null || customers.Count == 0)
+                return NotFound();
+
+            return Ok(customers);
+        }
     }
 }

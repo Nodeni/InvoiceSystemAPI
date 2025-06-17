@@ -30,5 +30,12 @@ namespace InvoiceSystemAPI.Repositories
             await _context.SaveChangesAsync();
             return customer;
         }
+
+        public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
+        {
+            return await _context.Customers
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+        }
     }
 }

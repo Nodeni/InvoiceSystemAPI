@@ -7,5 +7,6 @@ namespace InvoiceSystemAPI.IRepositories
         Task<List<Customer>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int id);
         Task<Customer> CreateCustomerAsync(Customer customer);
+        Task<List<Customer>> GetCustomersByUserIdAsync(int userId);
     }
 }
