@@ -10,6 +10,6 @@ namespace InvoiceSystemAPI.IRepositories
         Task<Customer> CreateCustomerAsync(Customer customer);
         Task<List<Customer>> GetCustomersByUserIdAsync(int userId);
         Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto);
-
+        Task<bool> DeleteCustomerAsync(int id);
     }
 }

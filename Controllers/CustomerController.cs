@@ -85,5 +85,14 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(updatedCustomer);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            var deleted = await _customerRepository.DeleteCustomerAsync(id);
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
     }
 }
