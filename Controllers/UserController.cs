@@ -21,9 +21,9 @@ namespace InvoiceSystemAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = _context.Users.ToList();
+            var users = await _userRepository.GetAllUsersAsync();
             return Ok(users);
         }
 
