@@ -73,5 +73,17 @@ namespace InvoiceSystemAPI.Controllers
 
             return Ok(customers);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCustomer(int id, CustomerUpdateDTO dto)
+        {
+            var updatedCustomer = await _customerRepository.UpdateCustomerAsync(id, dto);
+
+            if (updatedCustomer == null)
+                return NotFound();
+
+            return Ok(updatedCustomer);
+        }
+
     }
 }
