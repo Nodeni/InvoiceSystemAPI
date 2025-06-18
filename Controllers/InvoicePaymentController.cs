@@ -27,5 +27,18 @@ namespace InvoiceSystemAPI.Controllers
             var payment = await _invoicePaymentRepository.AddPaymentAsync(dto);
             return CreatedAtAction(nameof(AddPayment), new { id = payment.Id }, payment);
         }
+
+        // Get all payments for a specific invoice
+        [HttpGet("invoice/{invoiceId}")]
+        public async Task<IActionResult> GetPaymentsByInvoiceId(int invoiceId)
+        {
+            var payments = await _invoicePaymentRepository.GetPaymentsByInvoiceIdAsync(invoiceId);
+
+            if (!payments.Any())
+                return NotFound();
+
+            return Ok(payments);
+        }
+
     }
 }
