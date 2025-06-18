@@ -41,7 +41,6 @@ namespace InvoiceSystemAPI.Controllers
             };
 
             return Ok(response);
-
         }
     }
 }
