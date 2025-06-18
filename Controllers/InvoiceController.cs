@@ -101,5 +101,24 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(dto);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllInvoices()
+        {
+            var invoices = await _invoiceRepository.GetAllInvoicesByUserAsync(1); //This is only for testing purpose
+
+            var result = invoices.Select(i => new InvoiceListDTO
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                IssueDate = i.IssueDate,
+                DueDate = i.DueDate,
+                Total = i.Total,
+                Status = i.Status,
+                CustomerName = i.Customer.CompanyName ?? $"{i.Customer.FirstName} {i.Customer.LastName}"
+            });
+
+            return Ok(result);
+        }
+
     }
 }

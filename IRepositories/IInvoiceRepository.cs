@@ -6,5 +6,7 @@ namespace InvoiceSystemAPI.IRepositories
     public interface IInvoiceRepository
     {
         Task<Invoice> CreateInvoiceAsync(InvoiceCreateDTO dto);
+        Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId);
+
     }
 }
