@@ -9,6 +9,7 @@ namespace InvoiceSystemAPI.IRepositories
         Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId);
         Task<InvoiceDetailsDTO> GetInvoiceDetailsByIdAsync(int id);
         Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync();
+        Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto);
 
     }
 }
