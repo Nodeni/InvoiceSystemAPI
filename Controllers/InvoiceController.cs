@@ -61,5 +61,17 @@ namespace InvoiceSystemAPI.Controllers
             var invoices = await _invoiceRepository.GetAllInvoicesAsync();
             return Ok(invoices);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateInvoice(int id, [FromBody] InvoiceUpdateDTO dto)
+        {
+            var updated = await _invoiceRepository.UpdateInvoiceAsync(id, dto);
+
+            if (!updated)
+                return NotFound();
+
+            return NoContent(); // 204 = succesful update, no content needed as response
+        }
+
     }
 }
