@@ -128,5 +128,23 @@ namespace InvoiceSystemAPI.Repositories
 
             return dto;
         }
+
+        public async Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync()
+        {
+            var invoices = await _context.Invoices
+                .Include(i => i.Customer)
+                .ToListAsync();
+
+            return invoices.Select(i => new InvoiceListDTO
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                IssueDate = i.IssueDate,
+                DueDate = i.DueDate,
+                Total = i.Total,
+                Status = i.Status,
+                CustomerName = i.Customer.CompanyName ?? $"{i.Customer.FirstName} {i.Customer.LastName}"
+            });
+        }
     }
 }
