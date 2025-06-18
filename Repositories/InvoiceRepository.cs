@@ -167,5 +167,18 @@ namespace InvoiceSystemAPI.Repositories
 
             return true;
         }
+
+        public async Task<bool> DeleteInvoiceAsync(int id)
+        {
+            var invoice = await _context.Invoices.FindAsync(id);
+
+            if (invoice == null)
+                return false;
+
+            _context.Invoices.Remove(invoice);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
