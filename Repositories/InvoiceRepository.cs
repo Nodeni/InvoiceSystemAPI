@@ -24,6 +24,8 @@ namespace InvoiceSystemAPI.Repositories
                 DueDate = dto.DueDate,
                 IssueDate = DateTime.UtcNow,
                 Status = "Unpaid", // Always status Unpaid when creating a new invoice
+                InvoiceNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+
             };
 
             _context.Invoices.Add(invoice);
@@ -56,6 +58,8 @@ namespace InvoiceSystemAPI.Repositories
 
             _context.Invoices.Update(invoice);
             await _context.SaveChangesAsync();
+            await _context.Entry(invoice).Reference(i => i.Customer).LoadAsync();
+            await _context.Entry(invoice).Reference(i => i.User).LoadAsync();
 
             return invoice;
         }
