@@ -20,6 +20,7 @@ namespace InvoiceSystemAPI.Controllers
             _invoiceRepository = invoiceRepository;
         }
 
+        // Create a new invoice
         [HttpPost]
         public async Task<IActionResult> CreateInvoice([FromBody] InvoiceCreateDTO dto)
         {
@@ -44,6 +45,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(response);
         }
 
+        // Get a specific invoice by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetInvoiceById(int id)
         {
@@ -55,6 +57,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(dto);
         }
 
+        // Get all invoices in the system
         [HttpGet]
         public async Task<IActionResult> GetAllInvoices()
         {
@@ -62,6 +65,7 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(invoices);
         }
 
+        // Update invoice status or due date
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateInvoice(int id, [FromBody] InvoiceUpdateDTO dto)
         {

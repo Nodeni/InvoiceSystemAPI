@@ -16,6 +16,7 @@ namespace InvoiceSystemAPI.Repositories
             _context = context;
         }
 
+        // Save a new invoice with its items to the database
         public async Task<Invoice> CreateInvoiceAsync(InvoiceCreateDTO dto)
         {
             var invoice = new Invoice
@@ -65,6 +66,7 @@ namespace InvoiceSystemAPI.Repositories
             return invoice;
         }
 
+        // Get all invoices created by a specific user
         public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
         {
             return await _context.Invoices
@@ -73,6 +75,7 @@ namespace InvoiceSystemAPI.Repositories
                 .ToListAsync();
         }
 
+        // Get detailed info for a specific invoice by ID
         public async Task<InvoiceDetailsDTO?> GetInvoiceDetailsByIdAsync(int id)
         {
             var invoice = await _context.Invoices
@@ -129,6 +132,7 @@ namespace InvoiceSystemAPI.Repositories
             return dto;
         }
 
+        // Get all invoices with customer info
         public async Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync()
         {
             var invoices = await _context.Invoices
@@ -147,6 +151,7 @@ namespace InvoiceSystemAPI.Repositories
             });
         }
 
+        // Update due date and status of an invoice
         public async Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto)
         {
             var invoice = await _context.Invoices.FindAsync(id);
