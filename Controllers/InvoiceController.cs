@@ -65,6 +65,26 @@ namespace InvoiceSystemAPI.Controllers
             return Ok(invoices);
         }
 
+        // Get all invoices for a specific user by their user ID
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetInvoicesByUser(int userId)
+        {
+            var invoices = await _invoiceRepository.GetAllInvoicesByUserAsync(userId);
+
+            var result = invoices.Select(i => new InvoiceListDTO
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                IssueDate = i.IssueDate,
+                DueDate = i.DueDate,
+                Total = i.Total,
+                Status = i.Status,
+                CustomerName = i.Customer.CompanyName ?? $"{i.Customer.FirstName} {i.Customer.LastName}"
+            });
+
+            return Ok(result);
+        }
+
         // Update invoice status or due date
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateInvoice(int id, [FromBody] InvoiceUpdateDTO dto)
