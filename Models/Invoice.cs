@@ -17,5 +17,7 @@ namespace InvoiceSystemAPI.Models
         public decimal VAT { get; set; }
         public decimal Total { get; set; }
         public string Status { get; set; } = "Unpaid";
+        public List<InvoiceItem> Items { get; set; }
+
     }
 }
