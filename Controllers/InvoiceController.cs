@@ -77,5 +77,16 @@ namespace InvoiceSystemAPI.Controllers
             return NoContent(); // 204 = succesful update, no content needed as response
         }
 
+        // Delete a specific invoice by its ID
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteInvoice(int id)
+        {
+            var deleted = await _invoiceRepository.DeleteInvoiceAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent(); // 204 = deletion successful
+        }
     }
 }
