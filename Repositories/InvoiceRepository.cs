@@ -146,5 +146,21 @@ namespace InvoiceSystemAPI.Repositories
                 CustomerName = i.Customer.CompanyName ?? $"{i.Customer.FirstName} {i.Customer.LastName}"
             });
         }
+
+        public async Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto)
+        {
+            var invoice = await _context.Invoices.FindAsync(id);
+
+            if (invoice == null)
+                return false;
+
+            invoice.DueDate = dto.DueDate;
+            invoice.Status = dto.Status;
+
+            _context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
