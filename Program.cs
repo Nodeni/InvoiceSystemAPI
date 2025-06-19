@@ -3,6 +3,8 @@ using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.Repository;
 using InvoiceSystemAPI.Repositories;
+using InvoiceSystemAPI.IServices;
+using InvoiceSystemAPI.Services;
 
 namespace InvoiceSystemAPI
 {
@@ -20,6 +22,7 @@ namespace InvoiceSystemAPI
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             builder.Services.AddScoped<IInvoicePaymentRepository, InvoicePaymentRepository>();
+            builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
