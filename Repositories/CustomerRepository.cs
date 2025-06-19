@@ -16,10 +16,23 @@ namespace InvoiceSystemAPI.Repositories
         }
 
         // Fetch all customers from the database
-        public async Task<List<Customer>> GetAllCustomersAsync()
+        public async Task<List<CustomerListDTO>> GetAllCustomersAsync()
         {
-            return await _context.Customers.ToListAsync();
+            return await _context.Customers
+                .Select(c => new CustomerListDTO
+                {
+                    Id = c.Id,
+                    IsCompany = c.IsCompany,
+                    CompanyName = c.CompanyName,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Email = c.Email,
+                    City = c.City,
+                    Country = c.Country
+                })
+                .ToListAsync();
         }
+
 
         // Fetch a specific customer by ID
         public async Task<Customer?> GetCustomerByIdAsync(int id)
@@ -28,12 +41,31 @@ namespace InvoiceSystemAPI.Repositories
         }
 
         // Save a new customer to the database
-        public async Task<Customer> CreateCustomerAsync(Customer customer)
+        public async Task<Customer> CreateCustomerAsync(CustomerCreateDTO dto)
         {
+            var customer = new Customer
+            {
+                UserId = dto.UserId,
+                IsCompany = dto.IsCompany,
+                CompanyName = dto.CompanyName,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                AddressLine1 = dto.AddressLine1,
+                ZipCode = dto.ZipCode,
+                City = dto.City,
+                Country = dto.Country,
+                OrganizationNumber = dto.OrganizationNumber,
+                CreatedAt = DateTime.UtcNow
+            };
+
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
+
             return customer;
         }
+
 
         // Get all customers connected to a specific user
         public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
