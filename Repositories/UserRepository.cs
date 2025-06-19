@@ -16,9 +16,18 @@ namespace InvoiceSystemAPI.Repository
         }
 
         // Get all users from the database
-        public async Task<List<User>> GetAllUsersAsync()
+        public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .Select(u => new UserListDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    OrganizationName = u.OrganizationName
+                })
+                .ToListAsync();
         }
 
         // Save a new user to the database
