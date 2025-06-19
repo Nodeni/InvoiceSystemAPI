@@ -108,5 +108,17 @@ namespace InvoiceSystemAPI.Controllers
 
             return NoContent(); // 204 = deletion successful
         }
+
+        // Get a specific invoice and its related payments
+        [HttpGet("{id}/with-payments")]
+        public async Task<IActionResult> GetInvoiceWithPayments(int id)
+        {
+            var result = await _invoiceRepository.GetInvoiceWithPaymentsAsync(id);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
     }
 }
