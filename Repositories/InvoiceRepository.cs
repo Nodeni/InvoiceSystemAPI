@@ -168,6 +168,7 @@ namespace InvoiceSystemAPI.Repositories
             return true;
         }
 
+        // Delete an invoice from the database
         public async Task<bool> DeleteInvoiceAsync(int id)
         {
             var invoice = await _context.Invoices.FindAsync(id);
@@ -179,6 +180,24 @@ namespace InvoiceSystemAPI.Repositories
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        // Get a specific invoice and include all its related payments
+        public async Task<InvoiceWithPaymentsDTO?> GetInvoiceWithPaymentsAsync(int invoiceId)
+        {
+            var invoiceDto = await GetInvoiceDetailsByIdAsync(invoiceId);
+            if (invoiceDto == null)
+                return null;
+
+            var payments = await _context.InvoicePayments
+                .Where(p => p.InvoiceId == invoiceId)
+                .ToListAsync();
+
+            return new InvoiceWithPaymentsDTO
+            {
+                Invoice = invoiceDto,
+                Payments = payments
+            };
         }
     }
 }
