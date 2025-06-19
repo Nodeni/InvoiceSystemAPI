@@ -16,10 +16,23 @@ namespace InvoiceSystemAPI.Repositories
         }
 
         // Fetch all customers from the database
-        public async Task<List<Customer>> GetAllCustomersAsync()
+        public async Task<List<CustomerListDTO>> GetAllCustomersAsync()
         {
-            return await _context.Customers.ToListAsync();
+            return await _context.Customers
+                .Select(c => new CustomerListDTO
+                {
+                    Id = c.Id,
+                    IsCompany = c.IsCompany,
+                    CompanyName = c.CompanyName,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Email = c.Email,
+                    City = c.City,
+                    Country = c.Country
+                })
+                .ToListAsync();
         }
+
 
         // Fetch a specific customer by ID
         public async Task<Customer?> GetCustomerByIdAsync(int id)
