@@ -32,26 +32,7 @@ namespace InvoiceSystemAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCustomer(CustomerCreateDTO dto)
         {
-            var customer = new Customer
-            {
-                UserId = dto.UserId,
-                IsCompany = dto.IsCompany,
-                CompanyName = dto.CompanyName,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                AddressLine1 = dto.AddressLine1,
-                ZipCode = dto.ZipCode,
-                City = dto.City,
-                Country = dto.Country,
-                OrganizationNumber = dto.OrganizationNumber,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
-
+            var customer = await _customerRepository.CreateCustomerAsync(dto);
             return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
         }
 

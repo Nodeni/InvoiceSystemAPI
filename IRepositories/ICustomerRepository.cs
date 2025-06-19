@@ -7,7 +7,7 @@ namespace InvoiceSystemAPI.IRepositories
     {
         Task<List<Customer>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int id);
-        Task<Customer> CreateCustomerAsync(Customer customer);
+        Task<Customer> CreateCustomerAsync(CustomerCreateDTO dto);
         Task<List<Customer>> GetCustomersByUserIdAsync(int userId);
         Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto);
         Task<bool> DeleteCustomerAsync(int id);
