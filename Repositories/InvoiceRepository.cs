@@ -66,6 +66,30 @@ namespace InvoiceSystemAPI.Repositories
             return invoice;
         }
 
+        // Create invoice and return mapped response DTO
+        public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
+        {
+            var invoice = await CreateInvoiceAsync(dto);
+
+            var customerName = invoice.Customer.CompanyName ?? $"{invoice.Customer.FirstName} {invoice.Customer.LastName}";
+
+            return new InvoiceResponseDTO
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                IssueDate = invoice.IssueDate,
+                DueDate = invoice.DueDate,
+                SubTotal = invoice.SubTotal,
+                VAT = invoice.VAT,
+                Total = invoice.Total,
+                Status = invoice.Status,
+                CustomerName = customerName,
+                CustomerEmail = invoice.Customer.Email,
+                UserOrganization = invoice.User.OrganizationName,
+                UserEmail = invoice.User.Email
+            };
+        }
+
         // Get all invoices created by a specific user
         public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
         {

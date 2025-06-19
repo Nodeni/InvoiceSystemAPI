@@ -24,24 +24,7 @@ namespace InvoiceSystemAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateInvoice([FromBody] InvoiceCreateDTO dto)
         {
-            var invoice = await _invoiceRepository.CreateInvoiceAsync(dto);
-
-            var response = new InvoiceResponseDTO
-            {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber,
-                IssueDate = invoice.IssueDate,
-                DueDate = invoice.DueDate,
-                SubTotal = invoice.SubTotal,
-                VAT = invoice.VAT,
-                Total = invoice.Total,
-                Status = invoice.Status,
-                CustomerName = invoice.Customer.CompanyName ?? $"{invoice.Customer.FirstName} {invoice.Customer.LastName}",
-                CustomerEmail = invoice.Customer.Email,
-                UserOrganization = invoice.User.OrganizationName,
-                UserEmail = invoice.User.Email
-            };
-
+            var response = await _invoiceRepository.CreateInvoiceWithResponseAsync(dto);
             return Ok(response);
         }
 
