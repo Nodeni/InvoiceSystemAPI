@@ -32,25 +32,7 @@ namespace InvoiceSystemAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserCreateDTO dto)
         {
-            var user = new User
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PasswordHash = dto.Password,
-                OrganizationName = dto.OrganizationName,
-                OrganizationNumber = dto.OrganizationNumber,
-                AddressLine1 = dto.AddressLine1,
-                ZipCode = dto.ZipCode,
-                City = dto.City,
-                Country = dto.Country,
-                Bankgiro = dto.Bankgiro,
-                IBAN = dto.IBAN,
-                SwishNumber = dto.SwishNumber,
-                UserCreatedDate = DateTime.UtcNow,
-                IsActive = true
-            };
-            await _userRepository.CreateUserAsync(user);
+            var user = await _userRepository.CreateUserAsync(dto);
             return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, user);
         }
 

@@ -1,4 +1,5 @@
-﻿using InvoiceSystemAPI.Models;
+﻿using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.Models;
 
 namespace InvoiceSystemAPI.IRepositories
 {
@@ -6,6 +7,6 @@ namespace InvoiceSystemAPI.IRepositories
     {
         Task<List<User>> GetAllUsersAsync();
         Task<User?> GetUserByIdAsync(int id);
-        Task<User> CreateUserAsync(User user);
+        Task<User> CreateUserAsync(UserCreateDTO dto);
     }
 }
