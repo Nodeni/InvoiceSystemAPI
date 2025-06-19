@@ -33,8 +33,19 @@ namespace InvoiceSystemAPI.Controllers
         public async Task<IActionResult> CreateUser(UserCreateDTO dto)
         {
             var user = await _userRepository.CreateUserAsync(dto);
-            return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, user);
+
+            var response = new UserResponseDTO
+            {
+                Id = user.Id,
+                FullName = $"{user.FirstName} {user.LastName}",
+                Email = user.Email,
+                OrganizationName = user.OrganizationName,
+                CreatedAt = user.UserCreatedDate
+            };
+
+            return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, response);
         }
+
 
         // Get a specific user by their ID
         [HttpGet("{id}")]
