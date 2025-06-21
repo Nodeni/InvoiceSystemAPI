@@ -21,10 +21,14 @@ namespace InvoiceSystemAPI
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             builder.Services.AddScoped<IInvoicePaymentRepository, InvoicePaymentRepository>();
+            builder.Services.AddScoped<IServiceItemRepository, ServiceItemRepository>();
+            builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IInvoicePaymentService, InvoicePaymentService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IServiceItemService, ServiceItemService>();
+            builder.Services.AddScoped<IInvoiceItemService, InvoiceItemService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
