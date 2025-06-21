@@ -7,5 +7,6 @@ namespace InvoiceSystemAPI.IServices
     {
         Task<List<CustomerListDTO>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int id);
+        Task<List<Customer>> GetCustomersByUserIdAsync(int userId);
     }
 }

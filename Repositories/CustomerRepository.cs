@@ -61,9 +61,7 @@ namespace InvoiceSystemAPI.Repositories
         // Get all customers connected to a specific user
         public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
         {
-            return await _context.Customers
-                .Where(c => c.UserId == userId)
-                .ToListAsync();
+            return await _customerService.GetCustomersByUserIdAsync(userId);
         }
 
         // Update existing customer information

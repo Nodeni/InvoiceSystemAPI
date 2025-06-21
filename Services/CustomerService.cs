@@ -38,5 +38,13 @@ namespace InvoiceSystemAPI.Services
         {
             return await _context.Customers.FindAsync(id);
         }
+
+        // Get all customers connected to a specific user
+        public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
+        {
+            return await _context.Customers
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+        }
     }
 }
