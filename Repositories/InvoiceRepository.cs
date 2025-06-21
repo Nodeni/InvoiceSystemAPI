@@ -11,13 +11,6 @@ namespace InvoiceSystemAPI.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly AppDbContext _context;
-
-        public InvoiceRepository(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        // Save a new invoice with its items to the database
         private readonly IInvoiceService _invoiceService;
 
         public InvoiceRepository(AppDbContext context, IInvoiceService invoiceService)
