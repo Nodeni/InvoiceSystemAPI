@@ -1,15 +1,14 @@
-﻿using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.Models;
+﻿using InvoiceSystemAPI.Models;
 
 namespace InvoiceSystemAPI.IRepositories
 {
     public interface ICustomerRepository
     {
-        Task<List<CustomerListDTO>> GetAllCustomersAsync();
+        Task<Customer> CreateCustomerAsync(Customer customer);
+        Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int id);
-        Task<Customer> CreateCustomerAsync(CustomerCreateDTO dto);
-        Task<List<Customer>> GetCustomersByUserIdAsync(int userId);
-        Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto);
+        Task<IEnumerable<Customer>> GetCustomersByUserIdAsync(int userId);
+        Task<bool> UpdateCustomerAsync(Customer customer);
         Task<bool> DeleteCustomerAsync(int id);
     }
 }

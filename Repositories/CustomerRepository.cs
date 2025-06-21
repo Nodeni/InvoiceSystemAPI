@@ -1,59 +1,62 @@
 ﻿using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using InvoiceSystemAPI.IServices;
-
 
 namespace InvoiceSystemAPI.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
         private readonly AppDbContext _context;
-        private readonly ICustomerService _customerService;
 
-        public CustomerRepository(AppDbContext context, ICustomerService customerService)
+        public CustomerRepository(AppDbContext context)
         {
             _context = context;
-            _customerService = customerService;
-        }
-
-        // Fetch all customers from the database
-        public async Task<List<CustomerListDTO>> GetAllCustomersAsync()
-        {
-            return await _customerService.GetAllCustomersAsync();
-        }
-
-        // Fetch a specific customer by ID
-        public async Task<Customer?> GetCustomerByIdAsync(int id)
-        {
-            return await _customerService.GetCustomerByIdAsync(id);
         }
 
         // Save a new customer to the database
-        public async Task<Customer> CreateCustomerAsync(CustomerCreateDTO dto)
+        public async Task<Customer> CreateCustomerAsync(Customer customer)
         {
-            return await _customerService.CreateCustomerAsync(dto);
+            _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
+            return customer;
         }
 
-
-        // Get all customers connected to a specific user
-        public async Task<List<Customer>> GetCustomersByUserIdAsync(int userId)
+        // Retrieve all customers from the database
+        public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
         {
-            return await _customerService.GetCustomersByUserIdAsync(userId);
+            return await _context.Customers.ToListAsync();
         }
 
-        // Update existing customer information
-        public async Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto)
+        // Get a customer by ID
+        public async Task<Customer?> GetCustomerByIdAsync(int id)
         {
-            return await _customerService.UpdateCustomerAsync(id, dto);
+            return await _context.Customers.FindAsync(id);
+        }
+
+        // Get all customers associated with a specific user
+        public async Task<IEnumerable<Customer>> GetCustomersByUserIdAsync(int userId)
+        {
+            return await _context.Customers
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+        }
+
+        // Update an existing customer
+        public async Task<bool> UpdateCustomerAsync(Customer customer)
+        {
+            _context.Customers.Update(customer);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         // Delete a customer by ID
         public async Task<bool> DeleteCustomerAsync(int id)
         {
-            return await _customerService.DeleteCustomerAsync(id);
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null) return false;
+
+            _context.Customers.Remove(customer);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }
