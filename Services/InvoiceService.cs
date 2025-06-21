@@ -127,5 +127,13 @@ namespace InvoiceSystemAPI.Services
             });
         }
 
+        // Retrieves all invoices belonging to a specific user, including customer information.
+        public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
+        {
+            return await _context.Invoices
+                .Include(i => i.Customer)
+                .Where(i => i.UserId == userId)
+                .ToListAsync();
+        }
     }
 }

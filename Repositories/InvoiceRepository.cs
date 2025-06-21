@@ -35,10 +35,7 @@ namespace InvoiceSystemAPI.Repositories
         // Get all invoices created by a specific user
         public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
         {
-            return await _context.Invoices
-                .Include(i => i.Customer)
-                .Where(i => i.UserId == userId)
-                .ToListAsync();
+            return await _invoiceService.GetAllInvoicesByUserAsync(userId);
         }
 
         // Get detailed info for a specific invoice by ID
