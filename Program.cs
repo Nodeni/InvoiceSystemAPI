@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.IRepositories;
-using InvoiceSystemAPI.Repository;
 using InvoiceSystemAPI.Repositories;
 using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Services;
