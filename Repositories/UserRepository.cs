@@ -1,10 +1,9 @@
-﻿using InvoiceSystemAPI.Models;
+﻿using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.IRepositories;
-using InvoiceSystemAPI.Data;
+using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using InvoiceSystemAPI.DTOs;
 
-namespace InvoiceSystemAPI.Repository
+namespace InvoiceSystemAPI.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -15,52 +14,21 @@ namespace InvoiceSystemAPI.Repository
             _context = context;
         }
 
-        // Get all users from the database
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
-        {
-            return await _context.Users
-                .Select(u => new UserListDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    OrganizationName = u.OrganizationName
-                })
-                .ToListAsync();
-        }
-
         // Save a new user to the database
-        public async Task<User> CreateUserAsync(UserCreateDTO dto)
+        public async Task<User> CreateUserAsync(User user)
         {
-            var user = new User
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PasswordHash = dto.Password,
-                OrganizationName = dto.OrganizationName,
-                OrganizationNumber = dto.OrganizationNumber,
-                AddressLine1 = dto.AddressLine1,
-                ZipCode = dto.ZipCode,
-                City = dto.City,
-                Country = dto.Country,
-                Bankgiro = dto.Bankgiro,
-                IBAN = dto.IBAN,
-                SwishNumber = dto.SwishNumber,
-                UserCreatedDate = DateTime.UtcNow,
-                IsActive = true
-            };
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
             return user;
         }
 
+        // Get all users from the database
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
 
-
-        // Get a specific user by ID
+        // Get a user by ID
         public async Task<User?> GetUserByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);

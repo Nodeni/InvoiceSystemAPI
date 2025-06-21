@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.Models;
 using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.IRepositories;
-using Microsoft.EntityFrameworkCore;
+using InvoiceSystemAPI.IServices;
 
 namespace InvoiceSystemAPI.Controllers
 {
@@ -11,81 +8,68 @@ namespace InvoiceSystemAPI.Controllers
     [Route("api/[controller]")]
     public class InvoiceController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IInvoiceService _invoiceService;
 
-        public InvoiceController(AppDbContext context, IInvoiceRepository invoiceRepository)
+        public InvoiceController(IInvoiceService invoiceService)
         {
-            _context = context;
-            _invoiceRepository = invoiceRepository;
+            _invoiceService = invoiceService;
         }
 
-        // Create a new invoice
         [HttpPost]
-        public async Task<IActionResult> CreateInvoice([FromBody] InvoiceCreateDTO dto)
+        public async Task<IActionResult> CreateInvoice(InvoiceCreateDTO dto)
         {
-            var response = await _invoiceRepository.CreateInvoiceWithResponseAsync(dto);
+            var response = await _invoiceService.CreateInvoiceWithResponseAsync(dto);
             return Ok(response);
         }
 
-        // Get a specific invoice by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetInvoiceById(int id)
         {
-            var dto = await _invoiceRepository.GetInvoiceDetailsByIdAsync(id);
-
+            var dto = await _invoiceService.GetInvoiceDetailsByIdAsync(id);
             if (dto == null)
                 return NotFound();
 
             return Ok(dto);
         }
 
-        // Get all invoices in the system
         [HttpGet]
         public async Task<IActionResult> GetAllInvoices()
         {
-            var invoices = await _invoiceRepository.GetAllInvoicesAsync();
+            var invoices = await _invoiceService.GetAllInvoicesAsync();
             return Ok(invoices);
         }
 
-        // Get all invoices for a specific user by their user ID
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetInvoicesByUser(int userId)
         {
-            var result = await _invoiceRepository.GetInvoiceListByUserIdAsync(userId);
+            var result = await _invoiceService.GetInvoiceListByUserIdAsync(userId);
             return Ok(result);
         }
 
-        // Update invoice status or due date
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateInvoice(int id, [FromBody] InvoiceUpdateDTO dto)
+        public async Task<IActionResult> UpdateInvoice(int id, InvoiceUpdateDTO dto)
         {
-            var updated = await _invoiceRepository.UpdateInvoiceAsync(id, dto);
-
+            var updated = await _invoiceService.UpdateInvoiceAsync(id, dto);
             if (!updated)
                 return NotFound();
 
-            return NoContent(); // 204 = succesful update, no content needed as response
+            return NoContent();
         }
 
-        // Delete a specific invoice by its ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInvoice(int id)
         {
-            var deleted = await _invoiceRepository.DeleteInvoiceAsync(id);
-
+            var deleted = await _invoiceService.DeleteInvoiceAsync(id);
             if (!deleted)
                 return NotFound();
 
-            return NoContent(); // 204 = deletion successful
+            return NoContent();
         }
 
-        // Get a specific invoice and its related payments
         [HttpGet("{id}/with-payments")]
         public async Task<IActionResult> GetInvoiceWithPayments(int id)
         {
-            var result = await _invoiceRepository.GetInvoiceWithPaymentsAsync(id);
-
+            var result = await _invoiceService.GetInvoiceWithPaymentsAsync(id);
             if (result == null)
                 return NotFound();
 

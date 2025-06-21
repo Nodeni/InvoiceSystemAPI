@@ -1,9 +1,6 @@
-﻿using InvoiceSystemAPI.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.Models;
-using InvoiceSystemAPI.IRepositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
+using InvoiceSystemAPI.IServices;
 
 namespace InvoiceSystemAPI.Controllers
 {
@@ -11,28 +8,24 @@ namespace InvoiceSystemAPI.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
 
-        public UserController(AppDbContext context, IUserRepository userRepository)
+        public UserController(IUserService userService)
         {
-            _context = context;
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
-        // Get all users from the database
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userRepository.GetAllUsersAsync();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
-        // Create a new user
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserCreateDTO dto)
         {
-            var user = await _userRepository.CreateUserAsync(dto);
+            var user = await _userService.CreateUserAsync(dto);
 
             var response = new UserResponseDTO
             {
@@ -40,19 +33,16 @@ namespace InvoiceSystemAPI.Controllers
                 FullName = $"{user.FirstName} {user.LastName}",
                 Email = user.Email,
                 OrganizationName = user.OrganizationName,
-                CreatedAt = user.UserCreatedDate
+                CreatedAt = DateTime.UtcNow
             };
 
             return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, response);
         }
 
-
-        // Get a specific user by their ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
-
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound();
 

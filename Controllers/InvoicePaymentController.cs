@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.Models;
 using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.IRepositories;
-using Microsoft.EntityFrameworkCore;
+using InvoiceSystemAPI.IServices;
 
 namespace InvoiceSystemAPI.Controllers
 {
@@ -11,34 +8,28 @@ namespace InvoiceSystemAPI.Controllers
     [Route("api/[controller]")]
     public class InvoicePaymentController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IInvoicePaymentRepository _invoicePaymentRepository;
+        private readonly IInvoicePaymentService _invoicePaymentService;
 
-        public InvoicePaymentController(AppDbContext context, IInvoicePaymentRepository invoicePaymentRepository)
+        public InvoicePaymentController(IInvoicePaymentService invoicePaymentService)
         {
-            _context = context;
-            _invoicePaymentRepository = invoicePaymentRepository;
+            _invoicePaymentService = invoicePaymentService;
         }
 
-        // Add a new payment to an invoice
         [HttpPost]
-        public async Task<IActionResult> AddPayment([FromBody] InvoicePaymentCreateDTO dto)
+        public async Task<IActionResult> AddPayment(InvoicePaymentCreateDTO dto)
         {
-            var payment = await _invoicePaymentRepository.AddPaymentAsync(dto);
+            var payment = await _invoicePaymentService.AddPaymentAsync(dto);
             return CreatedAtAction(nameof(AddPayment), new { id = payment.Id }, payment);
         }
 
-        // Get all payments for a specific invoice
         [HttpGet("invoice/{invoiceId}")]
         public async Task<IActionResult> GetPaymentsByInvoiceId(int invoiceId)
         {
-            var payments = await _invoicePaymentRepository.GetPaymentsByInvoiceIdAsync(invoiceId);
-
+            var payments = await _invoicePaymentService.GetPaymentsByInvoiceIdAsync(invoiceId);
             if (!payments.Any())
                 return NotFound();
 
             return Ok(payments);
         }
-
     }
 }
