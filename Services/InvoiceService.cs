@@ -135,5 +135,26 @@ namespace InvoiceSystemAPI.Services
                 .Where(i => i.UserId == userId)
                 .ToListAsync();
         }
+
+        // Returns a list of invoices (basic details) for a specific user
+        public async Task<IEnumerable<InvoiceListDTO>> GetInvoiceListByUserIdAsync(int userId)
+        {
+            var invoices = await _context.Invoices
+                .Include(i => i.Customer)
+                .Where(i => i.UserId == userId)
+                .ToListAsync();
+
+            return invoices.Select(i => new InvoiceListDTO
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                IssueDate = i.IssueDate,
+                DueDate = i.DueDate,
+                Total = i.Total,
+                Status = i.Status,
+                CustomerName = i.Customer.CompanyName ?? $"{i.Customer.FirstName} {i.Customer.LastName}"
+            });
+        }
+
     }
 }
