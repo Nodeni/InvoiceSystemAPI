@@ -7,5 +7,6 @@ namespace InvoiceSystemAPI.IServices
     {
         Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto);
         Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto);
+        Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync();
     }
 }
