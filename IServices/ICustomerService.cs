@@ -1,9 +1,11 @@
 ﻿using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.Models;
 
 namespace InvoiceSystemAPI.IServices
 {
     public interface ICustomerService
     {
         Task<List<CustomerListDTO>> GetAllCustomersAsync();
+        Task<Customer?> GetCustomerByIdAsync(int id);
     }
 }

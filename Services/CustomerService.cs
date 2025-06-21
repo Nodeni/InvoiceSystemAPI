@@ -32,5 +32,11 @@ namespace InvoiceSystemAPI.Services
                 })
                 .ToListAsync();
         }
+
+        // Retrieves a customer by ID from the database
+        public async Task<Customer?> GetCustomerByIdAsync(int id)
+        {
+            return await _context.Customers.FindAsync(id);
+        }
     }
 }

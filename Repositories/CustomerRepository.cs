@@ -28,7 +28,7 @@ namespace InvoiceSystemAPI.Repositories
         // Fetch a specific customer by ID
         public async Task<Customer?> GetCustomerByIdAsync(int id)
         {
-            return await _context.Customers.FindAsync(id);
+            return await _customerService.GetCustomerByIdAsync(id);
         }
 
         // Save a new customer to the database
