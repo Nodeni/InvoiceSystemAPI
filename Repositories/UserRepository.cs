@@ -1,39 +1,37 @@
-﻿using InvoiceSystemAPI.Models;
+﻿using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.IRepositories;
-using InvoiceSystemAPI.Data;
+using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.IServices;
 
-namespace InvoiceSystemAPI.Repository
+namespace InvoiceSystemAPI.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
-        private readonly IUserService _userService;
 
-        public UserRepository(AppDbContext context, IUserService userService)
+        public UserRepository(AppDbContext context)
         {
             _context = context;
-            _userService = userService;
-        }
-
-        // Get all users from the database
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
-        {
-            return await _userService.GetAllUsersAsync();
         }
 
         // Save a new user to the database
-        public async Task<User> CreateUserAsync(UserCreateDTO dto)
+        public async Task<User> CreateUserAsync(User user)
         {
-            return await _userService.CreateUserAsync(dto);
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
 
-        // Get a specific user by ID
+        // Get all users from the database
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        // Get a user by ID
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _userService.GetUserByIdAsync(id);
+            return await _context.Users.FindAsync(id);
         }
     }
 }

@@ -1,37 +1,21 @@
-﻿using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.DTOs;
+﻿using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceSystemAPI.Services
 {
     public class UserService : IUserService
     {
-        private readonly AppDbContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(AppDbContext context)
+        public UserService(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
 
-        // Return a list of users with selected info
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
-        {
-            return await _context.Users
-                .Select(u => new UserListDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    OrganizationName = u.OrganizationName
-                })
-                .ToListAsync();
-        }
-
-        // Create a new user and save to DB
-        public async Task<User> CreateUserAsync(UserCreateDTO dto)
+        // Create a new user and return list-style DTO
+        public async Task<UserListDTO> CreateUserAsync(UserCreateDTO dto)
         {
             var user = new User
             {
@@ -52,16 +36,47 @@ namespace InvoiceSystemAPI.Services
                 IsActive = true
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var createdUser = await _userRepository.CreateUserAsync(user);
 
-            return user;
+            return new UserListDTO
+            {
+                Id = createdUser.Id,
+                FirstName = createdUser.FirstName,
+                LastName = createdUser.LastName,
+                Email = createdUser.Email,
+                OrganizationName = createdUser.OrganizationName
+            };
         }
 
-        // Get a user by ID
-        public async Task<User?> GetUserByIdAsync(int id)
+        // Get all users and return as DTOs
+        public async Task<IEnumerable<UserListDTO>> GetAllUsersAsync()
         {
-            return await _context.Users.FindAsync(id);
+            var users = await _userRepository.GetAllUsersAsync();
+
+            return users.Select(u => new UserListDTO
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                OrganizationName = u.OrganizationName
+            });
+        }
+
+        // Get a user by ID and return as DTO
+        public async Task<UserListDTO?> GetUserByIdAsync(int id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null) return null;
+
+            return new UserListDTO
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                OrganizationName = user.OrganizationName
+            };
         }
     }
 }
