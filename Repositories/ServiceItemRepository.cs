@@ -16,34 +16,18 @@ namespace InvoiceSystemAPI.Repositories
         }
 
         // Save a new service item
-        public async Task<ServiceItem> CreateServiceItemAsync(ServiceItemCreateDTO dto)
+        public async Task<ServiceItem> CreateServiceItemAsync(ServiceItem item)
         {
-            var serviceItem = new ServiceItem
-            {
-                UserId = dto.UserId,
-                Title = dto.Title,
-                Description = dto.Description,
-                UnitPrice = dto.UnitPrice
-            };
-
-            _context.ServiceItems.Add(serviceItem);
+            _context.ServiceItems.Add(item);
             await _context.SaveChangesAsync();
-
-            return serviceItem;
+            return item;
         }
 
         // Get all services for a user
-        public async Task<IEnumerable<ServiceItemListDTO>> GetServiceItemsByUserAsync(int userId)
+        public async Task<IEnumerable<ServiceItem>> GetServiceItemsByUserAsync(int userId)
         {
             return await _context.ServiceItems
                 .Where(s => s.UserId == userId)
-                .Select(s => new ServiceItemListDTO
-                {
-                    Id = s.Id,
-                    Title = s.Title,
-                    Description = s.Description,
-                    UnitPrice = s.UnitPrice
-                })
                 .ToListAsync();
         }
 
@@ -51,11 +35,24 @@ namespace InvoiceSystemAPI.Repositories
         public async Task<bool> DeleteServiceItemAsync(int id)
         {
             var item = await _context.ServiceItems.FindAsync(id);
-            if (item == null)
-                return false;
+            if (item == null) return false;
 
             _context.ServiceItems.Remove(item);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        // Update an existing service item
+        public async Task<ServiceItem?> UpdateServiceItemAsync(int id, ServiceItem updatedItem)
+        {
+            var item = await _context.ServiceItems.FindAsync(id);
+            if (item == null) return null;
+
+            item.Title = updatedItem.Title;
+            item.Description = updatedItem.Description;
+            item.UnitPrice = updatedItem.UnitPrice;
+
+            await _context.SaveChangesAsync();
+            return item;
         }
     }
 }

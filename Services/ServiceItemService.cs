@@ -17,19 +17,46 @@ namespace InvoiceSystemAPI.Services
         // Create a new service item
         public async Task<ServiceItem> CreateServiceItemAsync(ServiceItemCreateDTO dto)
         {
-            return await _serviceItemRepository.CreateServiceItemAsync(dto);
+            var item = new ServiceItem
+            {
+                UserId = dto.UserId,
+                Title = dto.Title,
+                Description = dto.Description,
+                UnitPrice = dto.UnitPrice
+            };
+            return await _serviceItemRepository.CreateServiceItemAsync(item);
         }
 
         // Get all service items for a specific user
         public async Task<IEnumerable<ServiceItemListDTO>> GetServiceItemsByUserAsync(int userId)
         {
-            return await _serviceItemRepository.GetServiceItemsByUserAsync(userId);
+            var services = await _serviceItemRepository.GetServiceItemsByUserAsync(userId);
+
+            return services.Select(s => new ServiceItemListDTO
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Description = s.Description,
+                UnitPrice = s.UnitPrice
+            });
         }
 
         // Delete a specific service item
         public async Task<bool> DeleteServiceItemAsync(int id)
         {
             return await _serviceItemRepository.DeleteServiceItemAsync(id);
+        }
+
+        //Update a specific service item
+        public async Task<ServiceItem?> UpdateServiceItemAsync(int id, ServiceItemUpdateDTO dto)
+        {
+            var item = new ServiceItem
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                UnitPrice = dto.UnitPrice
+            };
+            return await _serviceItemRepository.UpdateServiceItemAsync(id, item);
         }
     }
 }
