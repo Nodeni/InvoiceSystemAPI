@@ -7,32 +7,41 @@ namespace InvoiceSystemAPI.Services
 {
     public class ServiceItemService : IServiceItemService
     {
-        private readonly IServiceItemRepository _serviceItemRepository;
+        private readonly IServiceItemRepository _repository;
 
-        public ServiceItemService(IServiceItemRepository serviceItemRepository)
+        public ServiceItemService(IServiceItemRepository repository)
         {
-            _serviceItemRepository = serviceItemRepository;
+            _repository = repository;
         }
 
         // Create a new service item
-        public async Task<ServiceItem> CreateServiceItemAsync(ServiceItemCreateDTO dto)
+        public async Task<ServiceItemListDTO> CreateServiceItemAsync(ServiceItemCreateDTO dto)
         {
-            var item = new ServiceItem
+            var serviceItem = new ServiceItem
             {
                 UserId = dto.UserId,
                 Title = dto.Title,
                 Description = dto.Description,
                 UnitPrice = dto.UnitPrice
             };
-            return await _serviceItemRepository.CreateServiceItemAsync(item);
+
+            var created = await _repository.CreateServiceItemAsync(serviceItem);
+
+            return new ServiceItemListDTO
+            {
+                Id = created.Id,
+                Title = created.Title,
+                Description = created.Description,
+                UnitPrice = created.UnitPrice
+            };
         }
 
-        // Get all service items for a specific user
+        // Get all service items for a user
         public async Task<IEnumerable<ServiceItemListDTO>> GetServiceItemsByUserAsync(int userId)
         {
-            var services = await _serviceItemRepository.GetServiceItemsByUserAsync(userId);
+            var items = await _repository.GetServiceItemsByUserAsync(userId);
 
-            return services.Select(s => new ServiceItemListDTO
+            return items.Select(s => new ServiceItemListDTO
             {
                 Id = s.Id,
                 Title = s.Title,
@@ -41,22 +50,32 @@ namespace InvoiceSystemAPI.Services
             });
         }
 
-        // Delete a specific service item
-        public async Task<bool> DeleteServiceItemAsync(int id)
+        // Update a service item
+        public async Task<ServiceItemListDTO?> UpdateServiceItemAsync(int id, ServiceItemUpdateDTO dto)
         {
-            return await _serviceItemRepository.DeleteServiceItemAsync(id);
-        }
-
-        //Update a specific service item
-        public async Task<ServiceItem?> UpdateServiceItemAsync(int id, ServiceItemUpdateDTO dto)
-        {
-            var item = new ServiceItem
+            var serviceItem = new ServiceItem
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 UnitPrice = dto.UnitPrice
             };
-            return await _serviceItemRepository.UpdateServiceItemAsync(id, item);
+
+            var updated = await _repository.UpdateServiceItemAsync(id, serviceItem);
+            if (updated == null) return null;
+
+            return new ServiceItemListDTO
+            {
+                Id = updated.Id,
+                Title = updated.Title,
+                Description = updated.Description,
+                UnitPrice = updated.UnitPrice
+            };
+        }
+
+        // Delete a service item
+        public async Task<bool> DeleteServiceItemAsync(int id)
+        {
+            return await _repository.DeleteServiceItemAsync(id);
         }
     }
 }
