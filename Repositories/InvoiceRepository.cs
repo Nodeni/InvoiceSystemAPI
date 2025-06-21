@@ -1,9 +1,6 @@
 ﻿using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.IRepositories;
-using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceSystemAPI.Repositories
@@ -11,66 +8,83 @@ namespace InvoiceSystemAPI.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly AppDbContext _context;
-        private readonly IInvoiceService _invoiceService;
 
-        public InvoiceRepository(AppDbContext context, IInvoiceService invoiceService)
+        public InvoiceRepository(AppDbContext context)
         {
             _context = context;
-            _invoiceService = invoiceService;
         }
 
-        // Create a new invoice
-        public async Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto)
+        // Creates a new invoice and saves it to the database
+        public async Task<Invoice> CreateInvoiceAsync(Invoice invoice)
         {
-            return await _invoiceService.CreateInvoiceAsync(dto);
+            _context.Invoices.Add(invoice);
+            await _context.SaveChangesAsync();
+            return invoice;
         }
 
-        // Get all invoices created by a specific user
+        // Retrieves all invoices including related customer data
+        public async Task<IEnumerable<Invoice>> GetAllInvoicesAsync()
+        {
+            return await _context.Invoices
+                .Include(i => i.Customer)
+                .ToListAsync();
+        }
+
+        // Retrieves all invoices belonging to a specific user, including customer data
         public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
         {
-            return await _invoiceService.GetAllInvoicesByUserAsync(userId);
+            return await _context.Invoices
+                .Include(i => i.Customer)
+                .Where(i => i.UserId == userId)
+                .ToListAsync();
         }
 
-        // Get detailed info for a specific invoice by ID
-        public async Task<InvoiceDetailsDTO?> GetInvoiceDetailsByIdAsync(int id)
+        // Retrieves a single invoice by its ID (no includes)
+        public async Task<Invoice?> GetInvoiceByIdAsync(int id)
         {
-            return await _invoiceService.GetInvoiceDetailsByIdAsync(id);
+            return await _context.Invoices.FindAsync(id);
         }
 
-        // Update due date and status of an invoice
-        public async Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto)
+        // Updates an existing invoice in the database
+        public async Task<bool> UpdateInvoiceAsync(Invoice invoice)
         {
-            return await _invoiceService.UpdateInvoiceAsync(id, dto);
+            _context.Invoices.Update(invoice);
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        // Delete an invoice from the database
+        // Deletes an invoice by ID if it exists
         public async Task<bool> DeleteInvoiceAsync(int id)
         {
-            return await _invoiceService.DeleteInvoiceAsync(id);
+            var invoice = await _context.Invoices.FindAsync(id);
+            if (invoice == null) return false;
+            _context.Invoices.Remove(invoice);
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        // Get a specific invoice and include all its related payments
-        public async Task<InvoiceWithPaymentsDTO?> GetInvoiceWithPaymentsAsync(int invoiceId)
+        // Retrieves one invoice with related customer, user, and items
+        public async Task<Invoice?> GetInvoiceWithCustomerAndUserAsync(int id)
         {
-            return await _invoiceService.GetInvoiceWithPaymentsAsync(invoiceId);
+            return await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.User)
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        // Get all invoice list items for a specific user
-        public async Task<IEnumerable<InvoiceListDTO>> GetInvoiceListByUserIdAsync(int userId)
+        // Retrieves all invoice items related to a specific invoice
+        public async Task<List<InvoiceItem>> GetInvoiceItemsByInvoiceIdAsync(int invoiceId)
         {
-            return await _invoiceService.GetInvoiceListByUserIdAsync(userId);
+            return await _context.InvoiceItems
+                .Where(ii => ii.InvoiceId == invoiceId)
+                .ToListAsync();
         }
 
-        // Create invoice and return mapped response DTO
-        public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
+        // Retrieves all payments related to a specific invoice
+        public async Task<List<InvoicePayment>> GetPaymentsByInvoiceIdAsync(int invoiceId)
         {
-            return await _invoiceService.CreateInvoiceWithResponseAsync(dto);
-        }
-
-        // Get all invoices with customer info
-        public async Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync()
-        {
-            return await _invoiceService.GetAllInvoicesAsync();
+            return await _context.InvoicePayments
+                .Where(p => p.InvoiceId == invoiceId)
+                .ToListAsync();
         }
     }
 }

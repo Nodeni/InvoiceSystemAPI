@@ -1,24 +1,20 @@
 ﻿using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.IRepositories;
-using InvoiceSystemAPI.Models;
 using InvoiceSystemAPI.IServices;
-using Microsoft.EntityFrameworkCore;
-using InvoiceSystemAPI.Data;
+using InvoiceSystemAPI.Models;
 
 namespace InvoiceSystemAPI.Services
 {
     public class InvoiceService : IInvoiceService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly AppDbContext _context;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, AppDbContext context)
+        public InvoiceService(IInvoiceRepository invoiceRepository)
         {
             _invoiceRepository = invoiceRepository;
-            _context = context;
         }
 
-        // Create a new invoice
+        // Creates a new invoice with items and calculates total, VAT, etc.
         public async Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto)
         {
             var invoice = new Invoice
@@ -29,92 +25,50 @@ namespace InvoiceSystemAPI.Services
                 IssueDate = DateTime.UtcNow,
                 Status = "Unpaid",
                 InvoiceNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                Items = dto.Items.Select(item => new InvoiceItem
+                {
+                    Description = item.Description,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    Total = item.Quantity * item.UnitPrice
+                }).ToList()
             };
 
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
+            invoice.SubTotal = invoice.Items.Sum(i => i.Total);
+            invoice.VAT = invoice.SubTotal * 0.25m;
+            invoice.Total = invoice.SubTotal + invoice.VAT;
 
-            decimal subTotal = 0;
+            var created = await _invoiceRepository.CreateInvoiceAsync(invoice);
 
-            foreach (var itemDto in dto.Items)
-            {
-                var item = new InvoiceItem
-                {
-                    InvoiceId = invoice.Id,
-                    Description = itemDto.Description,
-                    Quantity = itemDto.Quantity,
-                    UnitPrice = itemDto.UnitPrice,
-                    Total = itemDto.Quantity * itemDto.UnitPrice
-                };
-                subTotal += item.Total;
-
-                _context.InvoiceItems.Add(item);
-            }
-
-            decimal vat = subTotal * 0.25m;
-            decimal total = subTotal + vat;
-
-            invoice.SubTotal = subTotal;
-            invoice.VAT = vat;
-            invoice.Total = total;
-
-            _context.Invoices.Update(invoice);
-            await _context.SaveChangesAsync();
-            await _context.Entry(invoice).Reference(i => i.Customer).LoadAsync();
-            await _context.Entry(invoice).Reference(i => i.User).LoadAsync();
+            var fullInvoice = await _invoiceRepository.GetInvoiceWithCustomerAndUserAsync(created.Id);
 
             return new InvoiceResponseDTO
             {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber,
-                IssueDate = invoice.IssueDate,
-                DueDate = invoice.DueDate,
-                SubTotal = invoice.SubTotal,
-                VAT = invoice.VAT,
-                Total = invoice.Total,
-                Status = invoice.Status,
-                CustomerName = invoice.Customer.CompanyName ?? $"{invoice.Customer.FirstName} {invoice.Customer.LastName}",
-                CustomerEmail = invoice.Customer.Email,
-                UserOrganization = invoice.User.OrganizationName,
-                UserEmail = invoice.User.Email
+                Id = fullInvoice!.Id,
+                InvoiceNumber = fullInvoice.InvoiceNumber,
+                IssueDate = fullInvoice.IssueDate,
+                DueDate = fullInvoice.DueDate,
+                SubTotal = fullInvoice.SubTotal,
+                VAT = fullInvoice.VAT,
+                Total = fullInvoice.Total,
+                Status = fullInvoice.Status,
+                CustomerName = fullInvoice.Customer.CompanyName ?? $"{fullInvoice.Customer.FirstName} {fullInvoice.Customer.LastName}",
+                CustomerEmail = fullInvoice.Customer.Email,
+                UserOrganization = fullInvoice.User.OrganizationName,
+                UserEmail = fullInvoice.User.Email
             };
-
         }
 
-        // Create invoice and return mapped response DTO
+        // Creates invoice and returns a mapped response
         public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
         {
-            var invoice = await CreateInvoiceAsync(dto);
-
-            var customerName = invoice.CustomerName;
-            var customerEmail = invoice.CustomerEmail;
-            var userEmail = invoice.UserEmail;
-            var userOrganization = invoice.UserOrganization;
-
-            return new InvoiceResponseDTO
-            {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber,
-                IssueDate = invoice.IssueDate,
-                DueDate = invoice.DueDate,
-                SubTotal = invoice.SubTotal,
-                VAT = invoice.VAT,
-                Total = invoice.Total,
-                Status = invoice.Status,
-                CustomerName = customerName,
-                CustomerEmail = customerEmail,
-                UserOrganization = userOrganization,
-                UserEmail = userEmail
-            };
+            return await CreateInvoiceAsync(dto);
         }
 
-        // Get all invoices with customer info
+        // Gets all invoices with customer info as DTO
         public async Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync()
         {
-            var invoices = await _context.Invoices
-                .Include(i => i.Customer)
-                .ToListAsync();
-
+            var invoices = await _invoiceRepository.GetAllInvoicesAsync();
             return invoices.Select(i => new InvoiceListDTO
             {
                 Id = i.Id,
@@ -127,23 +81,10 @@ namespace InvoiceSystemAPI.Services
             });
         }
 
-        // Retrieves all invoices belonging to a specific user, including customer information.
-        public async Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId)
-        {
-            return await _context.Invoices
-                .Include(i => i.Customer)
-                .Where(i => i.UserId == userId)
-                .ToListAsync();
-        }
-
-        // Returns a list of invoices (basic details) for a specific user
+        // Gets invoice list for a specific user
         public async Task<IEnumerable<InvoiceListDTO>> GetInvoiceListByUserIdAsync(int userId)
         {
-            var invoices = await _context.Invoices
-                .Include(i => i.Customer)
-                .Where(i => i.UserId == userId)
-                .ToListAsync();
-
+            var invoices = await _invoiceRepository.GetAllInvoicesByUserAsync(userId);
             return invoices.Select(i => new InvoiceListDTO
             {
                 Id = i.Id,
@@ -156,27 +97,19 @@ namespace InvoiceSystemAPI.Services
             });
         }
 
-        // Get detailed info for a specific invoice by ID
+        // Gets full invoice details including customer, company, and items
         public async Task<InvoiceDetailsDTO?> GetInvoiceDetailsByIdAsync(int id)
         {
-            var invoice = await _context.Invoices
-                .Include(i => i.Customer)
-                .Include(i => i.User)
-                .Include(i => i.Items)
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var invoice = await _invoiceRepository.GetInvoiceWithCustomerAndUserAsync(id);
+            if (invoice == null) return null;
 
-            if (invoice == null)
-                return null;
-
-            var items = await _context.InvoiceItems
-                .Where(ii => ii.InvoiceId == id)
-                .Select(ii => new InvoiceItemDetailsDTO
-                {
-                    Description = ii.Description,
-                    Quantity = ii.Quantity,
-                    UnitPrice = ii.UnitPrice,
-                    Total = ii.Total
-                }).ToListAsync();
+            var items = invoice.Items.Select(ii => new InvoiceItemDetailsDTO
+            {
+                Description = ii.Description,
+                Quantity = ii.Quantity,
+                UnitPrice = ii.UnitPrice,
+                Total = ii.Total
+            }).ToList();
 
             return new InvoiceDetailsDTO
             {
@@ -211,47 +144,31 @@ namespace InvoiceSystemAPI.Services
             };
         }
 
-        // Update due date and status of an invoice
+        // Updates invoice due date and status
         public async Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto)
         {
-            var invoice = await _context.Invoices.FindAsync(id);
-
-            if (invoice == null)
-                return false;
+            var invoice = await _invoiceRepository.GetInvoiceByIdAsync(id);
+            if (invoice == null) return false;
 
             invoice.DueDate = dto.DueDate;
             invoice.Status = dto.Status;
 
-            _context.Invoices.Update(invoice);
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _invoiceRepository.UpdateInvoiceAsync(invoice);
         }
 
-        // Delete an invoice from the database
+        // Deletes an invoice if it exists
         public async Task<bool> DeleteInvoiceAsync(int id)
         {
-            var invoice = await _context.Invoices.FindAsync(id);
-
-            if (invoice == null)
-                return false;
-
-            _context.Invoices.Remove(invoice);
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _invoiceRepository.DeleteInvoiceAsync(id);
         }
 
-        // Get a specific invoice and include all its related payments
+        // Gets full invoice details + all associated payments
         public async Task<InvoiceWithPaymentsDTO?> GetInvoiceWithPaymentsAsync(int invoiceId)
         {
             var invoiceDto = await GetInvoiceDetailsByIdAsync(invoiceId);
-            if (invoiceDto == null)
-                return null;
+            if (invoiceDto == null) return null;
 
-            var payments = await _context.InvoicePayments
-                .Where(p => p.InvoiceId == invoiceId)
-                .ToListAsync();
+            var payments = await _invoiceRepository.GetPaymentsByInvoiceIdAsync(invoiceId);
 
             return new InvoiceWithPaymentsDTO
             {
