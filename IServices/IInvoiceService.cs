@@ -11,5 +11,6 @@ namespace InvoiceSystemAPI.IServices
         Task<IEnumerable<Invoice>> GetAllInvoicesByUserAsync(int userId);
         Task<IEnumerable<InvoiceListDTO>> GetInvoiceListByUserIdAsync(int userId);
         Task<InvoiceDetailsDTO?> GetInvoiceDetailsByIdAsync(int id);
+        Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto);
     }
 }
