@@ -34,27 +34,7 @@ namespace InvoiceSystemAPI.Repositories
         // Save a new customer to the database
         public async Task<Customer> CreateCustomerAsync(CustomerCreateDTO dto)
         {
-            var customer = new Customer
-            {
-                UserId = dto.UserId,
-                IsCompany = dto.IsCompany,
-                CompanyName = dto.CompanyName,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                AddressLine1 = dto.AddressLine1,
-                ZipCode = dto.ZipCode,
-                City = dto.City,
-                Country = dto.Country,
-                OrganizationNumber = dto.OrganizationNumber,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _context.Customers.AddAsync(customer);
-            await _context.SaveChangesAsync();
-
-            return customer;
+            return await _customerService.CreateCustomerAsync(dto);
         }
 
 
