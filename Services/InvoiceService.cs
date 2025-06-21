@@ -18,6 +18,7 @@ namespace InvoiceSystemAPI.Services
             _context = context;
         }
 
+        // Create a new invoice
         public async Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto)
         {
             var invoice = new Invoice
@@ -80,5 +81,31 @@ namespace InvoiceSystemAPI.Services
 
         }
 
+        // Create invoice and return mapped response DTO
+        public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
+        {
+            var invoice = await CreateInvoiceAsync(dto);
+
+            var customerName = invoice.CustomerName;
+            var customerEmail = invoice.CustomerEmail;
+            var userEmail = invoice.UserEmail;
+            var userOrganization = invoice.UserOrganization;
+
+            return new InvoiceResponseDTO
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                IssueDate = invoice.IssueDate,
+                DueDate = invoice.DueDate,
+                SubTotal = invoice.SubTotal,
+                VAT = invoice.VAT,
+                Total = invoice.Total,
+                Status = invoice.Status,
+                CustomerName = customerName,
+                CustomerEmail = customerEmail,
+                UserOrganization = userOrganization,
+                UserEmail = userEmail
+            };
+        }
     }
 }

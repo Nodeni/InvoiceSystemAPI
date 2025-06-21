@@ -26,15 +26,10 @@ namespace InvoiceSystemAPI.Repositories
             _invoiceService = invoiceService;
         }
 
+        // Create a new invoice
         public async Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto)
         {
             return await _invoiceService.CreateInvoiceAsync(dto);
-        }
-
-        // Create invoice and return mapped response DTO
-        public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
-        {
-            return await CreateInvoiceAsync(dto);
         }
 
         // Get all invoices created by a specific user
