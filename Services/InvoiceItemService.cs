@@ -1,5 +1,6 @@
 ﻿using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,17 +9,17 @@ namespace InvoiceSystemAPI.Services
 {
     public class InvoiceItemService : IInvoiceItemService
     {
-        private readonly AppDbContext _context;
+        private readonly IInvoiceItemRepository _repository;
 
-        public InvoiceItemService(AppDbContext context)
+        public InvoiceItemService(IInvoiceItemRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // Create and save a new invoice item
-        public async Task<InvoiceItem> CreateInvoiceItemAsync(InvoiceItemCreateDTO dto)
+        public async Task<InvoiceItemDetailsDTO> CreateInvoiceItemAsync(InvoiceItemCreateDTO dto)
         {
-            var invoiceItem = new InvoiceItem
+            var item = new InvoiceItem
             {
                 InvoiceId = dto.InvoiceId,
                 Description = dto.Description,
@@ -26,37 +27,59 @@ namespace InvoiceSystemAPI.Services
                 UnitPrice = dto.UnitPrice
             };
 
-            _context.InvoiceItems.Add(invoiceItem);
-            await _context.SaveChangesAsync();
+            var created = await _repository.CreateInvoiceItemAsync(item);
 
-            return invoiceItem;
+            return new InvoiceItemDetailsDTO
+            {
+                Id = created.Id,
+                Description = created.Description,
+                Quantity = created.Quantity,
+                UnitPrice = created.UnitPrice,
+                Total = created.Quantity * created.UnitPrice
+            };
         }
 
         // Get all items for a specific invoice
         public async Task<IEnumerable<InvoiceItemDetailsDTO>> GetInvoiceItemsByInvoiceIdAsync(int invoiceId)
         {
-            return await _context.InvoiceItems
-                .Where(item => item.InvoiceId == invoiceId)
-                .Select(item => new InvoiceItemDetailsDTO
-                {
-                    Id = item.Id,
-                    Description = item.Description,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    Total = item.Quantity * item.UnitPrice
-                })
-                .ToListAsync();
+            var items = await _repository.GetInvoiceItemsByInvoiceIdAsync(invoiceId);
+
+            return items.Select(x => new InvoiceItemDetailsDTO
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Quantity = x.Quantity,
+                UnitPrice = x.UnitPrice,
+                Total = x.Quantity * x.UnitPrice
+            });
         }
 
         // Delete a single invoice item
         public async Task<bool> DeleteInvoiceItemAsync(int id)
         {
-            var item = await _context.InvoiceItems.FindAsync(id);
-            if (item == null)
-                return false;
+            return await _repository.DeleteInvoiceItemAsync(id);
+        }
 
-            _context.InvoiceItems.Remove(item);
-            return await _context.SaveChangesAsync() > 0;
+        //Update invoice item
+        public async Task<InvoiceItemDetailsDTO?> UpdateInvoiceItemAsync(int id, InvoiceItemUpdateDTO dto)
+        {
+            var updated = await _repository.UpdateInvoiceItemAsync(id, new InvoiceItem
+            {
+                Description = dto.Description,
+                Quantity = dto.Quantity,
+                UnitPrice = dto.UnitPrice
+            });
+
+            if (updated == null) return null;
+
+            return new InvoiceItemDetailsDTO
+            {
+                Id = updated.Id,
+                Description = updated.Description,
+                Quantity = updated.Quantity,
+                UnitPrice = updated.UnitPrice,
+                Total = updated.Quantity * updated.UnitPrice
+            };
         }
     }
 }
