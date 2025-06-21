@@ -12,5 +12,7 @@ namespace InvoiceSystemAPI.IRepositories
         Task<bool> DeleteInvoiceAsync(int id);
         Task<InvoiceWithPaymentsDTO?> GetInvoiceWithPaymentsAsync(int invoiceId);
         Task<IEnumerable<InvoiceListDTO>> GetInvoiceListByUserIdAsync(int userId);
+        Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto);
+        Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync();
     }
 }

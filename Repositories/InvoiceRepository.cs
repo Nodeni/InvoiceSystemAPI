@@ -60,5 +60,17 @@ namespace InvoiceSystemAPI.Repositories
         {
             return await _invoiceService.GetInvoiceListByUserIdAsync(userId);
         }
+
+        // Create invoice and return mapped response DTO
+        public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
+        {
+            return await _invoiceService.CreateInvoiceWithResponseAsync(dto);
+        }
+
+        // Get all invoices with customer info
+        public async Task<IEnumerable<InvoiceListDTO>> GetAllInvoicesAsync()
+        {
+            return await _invoiceService.GetAllInvoicesAsync();
+        }
     }
 }
