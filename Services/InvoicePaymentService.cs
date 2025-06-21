@@ -49,5 +49,13 @@ namespace InvoiceSystemAPI.Services
 
             return payment;
         }
+
+        // Get all payments related to a specific invoice
+        public async Task<IEnumerable<InvoicePayment>> GetPaymentsByInvoiceIdAsync(int invoiceId)
+        {
+            return await _context.InvoicePayments
+                .Where(p => p.InvoiceId == invoiceId)
+                .ToListAsync();
+        }
     }
 }
