@@ -3,36 +3,27 @@ using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using InvoiceSystemAPI.IServices;
+
 
 namespace InvoiceSystemAPI.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
         private readonly AppDbContext _context;
+        private readonly ICustomerService _customerService;
 
-        public CustomerRepository(AppDbContext context)
+        public CustomerRepository(AppDbContext context, ICustomerService customerService)
         {
             _context = context;
+            _customerService = customerService;
         }
 
         // Fetch all customers from the database
         public async Task<List<CustomerListDTO>> GetAllCustomersAsync()
         {
-            return await _context.Customers
-                .Select(c => new CustomerListDTO
-                {
-                    Id = c.Id,
-                    IsCompany = c.IsCompany,
-                    CompanyName = c.CompanyName,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Email = c.Email,
-                    City = c.City,
-                    Country = c.Country
-                })
-                .ToListAsync();
+            return await _customerService.GetAllCustomersAsync();
         }
-
 
         // Fetch a specific customer by ID
         public async Task<Customer?> GetCustomerByIdAsync(int id)
