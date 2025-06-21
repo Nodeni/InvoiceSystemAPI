@@ -227,5 +227,19 @@ namespace InvoiceSystemAPI.Services
 
             return true;
         }
+
+        // Delete an invoice from the database
+        public async Task<bool> DeleteInvoiceAsync(int id)
+        {
+            var invoice = await _context.Invoices.FindAsync(id);
+
+            if (invoice == null)
+                return false;
+
+            _context.Invoices.Remove(invoice);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
