@@ -1,34 +1,53 @@
 ﻿using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.DTOs;
-using InvoiceSystemAPI.Models;
 using InvoiceSystemAPI.IRepositories;
+using InvoiceSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using InvoiceSystemAPI.IServices;
-using InvoiceSystemAPI.Services;
 
 namespace InvoiceSystemAPI.Repositories
 {
     public class InvoicePaymentRepository : IInvoicePaymentRepository
     {
         private readonly AppDbContext _context;
-        private readonly IInvoicePaymentService _invoicePaymentService;
 
-        public InvoicePaymentRepository(AppDbContext context, IInvoicePaymentService invoicePaymentService)
+        public InvoicePaymentRepository(AppDbContext context)
         {
             _context = context;
-            _invoicePaymentService = invoicePaymentService;
         }
 
-        // Save a new payment for an invoice
-        public async Task<InvoicePayment> AddPaymentAsync(InvoicePaymentCreateDTO dto)
+        // Save a new payment
+        public async Task<InvoicePayment> AddPaymentAsync(InvoicePayment payment)
         {
-            return await _invoicePaymentService.AddPaymentAsync(dto);
+            _context.InvoicePayments.Add(payment);
+            await _context.SaveChangesAsync();
+            return payment;
         }
 
-        // Get all payments related to a specific invoice
+        // Get all payments for a specific invoice
         public async Task<IEnumerable<InvoicePayment>> GetPaymentsByInvoiceIdAsync(int invoiceId)
         {
-            return await _invoicePaymentService.GetPaymentsByInvoiceIdAsync(invoiceId);
+            return await _context.InvoicePayments
+                .Where(p => p.InvoiceId == invoiceId)
+                .ToListAsync();
+        }
+
+        // Calculate total amount paid for a specific invoice
+        public async Task<decimal> GetTotalPaidAmountAsync(int invoiceId)
+        {
+            return await _context.InvoicePayments
+                .Where(p => p.InvoiceId == invoiceId)
+                .SumAsync(p => p.AmountPaid ?? 0);
+        }
+
+        // Update invoice status
+        public async Task UpdateInvoiceStatusAsync(int invoiceId, bool isPaid)
+        {
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == invoiceId);
+            if (invoice != null)
+            {
+                invoice.Status = isPaid ? "Paid" : invoice.Status;
+                _context.Invoices.Update(invoice);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

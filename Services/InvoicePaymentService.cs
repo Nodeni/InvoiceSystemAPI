@@ -1,21 +1,20 @@
-﻿using InvoiceSystemAPI.Data;
-using InvoiceSystemAPI.DTOs;
+﻿using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.IRepositories;
 using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceSystemAPI.Services
 {
     public class InvoicePaymentService : IInvoicePaymentService
     {
-        private readonly AppDbContext _context;
+        private readonly IInvoicePaymentRepository _invoicePaymentRepository;
 
-        public InvoicePaymentService(AppDbContext context)
+        public InvoicePaymentService(IInvoicePaymentRepository invoicePaymentRepository)
         {
-            _context = context;
+            _invoicePaymentRepository = invoicePaymentRepository;
         }
 
-        // Add a new payment and update invoice status if fully paid
+        // Add a new payment and update invoice status if needed
         public async Task<InvoicePayment> AddPaymentAsync(InvoicePaymentCreateDTO dto)
         {
             var payment = new InvoicePayment
@@ -25,37 +24,23 @@ namespace InvoiceSystemAPI.Services
                 PaidDate = dto.PaidDate
             };
 
-            await _context.InvoicePayments.AddAsync(payment);
-            await _context.SaveChangesAsync();
+            var savedPayment = await _invoicePaymentRepository.AddPaymentAsync(payment);
 
-            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == dto.InvoiceId);
+            var totalPaid = await _invoicePaymentRepository.GetTotalPaidAmountAsync(dto.InvoiceId);
 
-            if (invoice != null)
+            if (totalPaid >= savedPayment.Invoice?.Total)
             {
-                var totalPaid = await _context.InvoicePayments
-                    .Where(p => p.InvoiceId == dto.InvoiceId)
-                    .SumAsync(p => p.AmountPaid ?? 0);
-
-                if (totalPaid >= invoice.Total)
-                {
-                    invoice.Status = "Paid";
-
-                    payment.IsPaid = true;
-
-                    _context.Invoices.Update(invoice);
-                    await _context.SaveChangesAsync();
-                }
+                payment.IsPaid = true;
+                await _invoicePaymentRepository.UpdateInvoiceStatusAsync(dto.InvoiceId, true);
             }
 
-            return payment;
+            return savedPayment;
         }
 
-        // Get all payments related to a specific invoice
+        // Get all payments for an invoice
         public async Task<IEnumerable<InvoicePayment>> GetPaymentsByInvoiceIdAsync(int invoiceId)
         {
-            return await _context.InvoicePayments
-                .Where(p => p.InvoiceId == invoiceId)
-                .ToListAsync();
+            return await _invoicePaymentRepository.GetPaymentsByInvoiceIdAsync(invoiceId);
         }
     }
 }
