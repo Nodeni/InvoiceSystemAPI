@@ -70,5 +70,17 @@ namespace InvoiceSystemAPI.Services
             await _context.SaveChangesAsync();
             return customer;
         }
+
+        // Delete a customer by ID
+        public async Task<bool> DeleteCustomerAsync(int id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+                return false;
+
+            _context.Customers.Remove(customer);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
