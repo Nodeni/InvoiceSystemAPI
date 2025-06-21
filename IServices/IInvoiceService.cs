@@ -1,4 +1,5 @@
 ﻿using InvoiceSystemAPI.DTOs;
+using InvoiceSystemAPI.Models;
 
 namespace InvoiceSystemAPI.IServices
 {

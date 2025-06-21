@@ -1,6 +1,7 @@
 ﻿using InvoiceSystemAPI.Data;
 using InvoiceSystemAPI.DTOs;
 using InvoiceSystemAPI.IRepositories;
+using InvoiceSystemAPI.IServices;
 using InvoiceSystemAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,77 +18,23 @@ namespace InvoiceSystemAPI.Repositories
         }
 
         // Save a new invoice with its items to the database
-        public async Task<Invoice> CreateInvoiceAsync(InvoiceCreateDTO dto)
+        private readonly IInvoiceService _invoiceService;
+
+        public InvoiceRepository(AppDbContext context, IInvoiceService invoiceService)
         {
-            var invoice = new Invoice
-            {
-                CustomerId = dto.CustomerId,
-                UserId = dto.UserId,
-                DueDate = dto.DueDate,
-                IssueDate = DateTime.UtcNow,
-                Status = "Unpaid", // Always status Unpaid when creating a new invoice
-                InvoiceNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+            _context = context;
+            _invoiceService = invoiceService;
+        }
 
-            };
-
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
-
-            decimal subTotal = 0;
-
-            foreach (var itemDto in dto.Items)
-            {
-                var item = new InvoiceItem
-                {
-                    InvoiceId = invoice.Id,
-                    Description = itemDto.Description,
-                    Quantity = itemDto.Quantity,
-                    UnitPrice = itemDto.UnitPrice,
-                    Total = itemDto.Quantity * itemDto.UnitPrice
-                };
-
-                subTotal += item.Total;
-
-                _context.InvoiceItems.Add(item);
-            }
-
-            decimal vat = subTotal * 0.25m;
-            decimal total = subTotal + vat;
-
-            invoice.SubTotal = subTotal;
-            invoice.VAT = vat;
-            invoice.Total = total;
-
-            _context.Invoices.Update(invoice);
-            await _context.SaveChangesAsync();
-            await _context.Entry(invoice).Reference(i => i.Customer).LoadAsync();
-            await _context.Entry(invoice).Reference(i => i.User).LoadAsync();
-
-            return invoice;
+        public async Task<InvoiceResponseDTO> CreateInvoiceAsync(InvoiceCreateDTO dto)
+        {
+            return await _invoiceService.CreateInvoiceAsync(dto);
         }
 
         // Create invoice and return mapped response DTO
         public async Task<InvoiceResponseDTO> CreateInvoiceWithResponseAsync(InvoiceCreateDTO dto)
         {
-            var invoice = await CreateInvoiceAsync(dto);
-
-            var customerName = invoice.Customer.CompanyName ?? $"{invoice.Customer.FirstName} {invoice.Customer.LastName}";
-
-            return new InvoiceResponseDTO
-            {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber,
-                IssueDate = invoice.IssueDate,
-                DueDate = invoice.DueDate,
-                SubTotal = invoice.SubTotal,
-                VAT = invoice.VAT,
-                Total = invoice.Total,
-                Status = invoice.Status,
-                CustomerName = customerName,
-                CustomerEmail = invoice.Customer.Email,
-                UserOrganization = invoice.User.OrganizationName,
-                UserEmail = invoice.User.Email
-            };
+            return await CreateInvoiceAsync(dto);
         }
 
         // Get all invoices created by a specific user
