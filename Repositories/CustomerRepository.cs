@@ -67,25 +67,7 @@ namespace InvoiceSystemAPI.Repositories
         // Update existing customer information
         public async Task<Customer?> UpdateCustomerAsync(int id, CustomerUpdateDTO dto)
         {
-            var customer = await _context.Customers.FindAsync(id);
-
-            if (customer == null)
-                return null;
-
-            customer.IsCompany = dto.IsCompany;
-            customer.CompanyName = dto.CompanyName;
-            customer.FirstName = dto.FirstName;
-            customer.LastName = dto.LastName;
-            customer.Email = dto.Email;
-            customer.PhoneNumber = dto.PhoneNumber;
-            customer.AddressLine1 = dto.AddressLine1;
-            customer.ZipCode = dto.ZipCode;
-            customer.City = dto.City;
-            customer.Country = dto.Country;
-            customer.OrganizationNumber = dto.OrganizationNumber;
-
-            await _context.SaveChangesAsync();
-            return customer;
+            return await _customerService.UpdateCustomerAsync(id, dto);
         }
 
         // Delete a customer by ID
