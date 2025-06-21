@@ -13,5 +13,6 @@ namespace InvoiceSystemAPI.IServices
         Task<InvoiceDetailsDTO?> GetInvoiceDetailsByIdAsync(int id);
         Task<bool> UpdateInvoiceAsync(int id, InvoiceUpdateDTO dto);
         Task<bool> DeleteInvoiceAsync(int id);
+        Task<InvoiceWithPaymentsDTO?> GetInvoiceWithPaymentsAsync(int invoiceId);
     }
 }
